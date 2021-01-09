@@ -127,3 +127,7 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# Temp test file for saving data
+parties.txt
+duels.txt

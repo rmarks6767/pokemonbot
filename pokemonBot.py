@@ -1,6 +1,7 @@
 
 import discord, random
 from api import get_pokemon
+from processors import party_add
 class PokemonBot(discord.Client):
 
     async def on_ready(self):
@@ -14,7 +15,8 @@ class PokemonBot(discord.Client):
         #print(message.content)
         #print(self.user.id)
         if str(self.user.id) in str(message.content):
-            response= get_pokemon()
+            m = message.content.split(' ')
+            response = party_add(message.author.id, m[1])
             await message.channel.send(response)
         else:
             return
