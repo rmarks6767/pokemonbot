@@ -11,7 +11,6 @@ class PokemonBot(discord.Client):
                 return
         #if message.author.name == "River":
         #    await message.channel.send("Shut up clown 🤡")
-        # This is a random comment
         #print(message.content)
         #print(self.user.id)
         if str(self.user.id) in str(message.content):
