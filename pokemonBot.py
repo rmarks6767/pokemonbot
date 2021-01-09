@@ -2,6 +2,7 @@
 import discord, random
 from api import get_pokemon
 from processors import party_add, party_view
+from fight import duel
 class PokemonBot(discord.Client):
 
     async def on_ready(self):
@@ -32,7 +33,11 @@ class PokemonBot(discord.Client):
                     response = party_add(message.author.id, messageList[3])
                     await message.channel.send(response)
             elif messageCommand == "duel" and len(messageList)==3:
-                await message.channel.send("You are now challenging "+ str(messageList[2])+" to a battle")
+                userId=str(message.author.id)
+                opponentId=str(messageList[2]).replace('<@!','').replace('>','')
+
+                response=duel(userId,opponentId)
+                await message.channel.send(response)
             elif messageCommand== "fight" and len(messageList)==4:
                 await message.channel.send("You are fighting " + str(messageList[2])+ " and used "+ str(messageList[3]))
             elif messageCommand == "list" and len(messageList)==3:
