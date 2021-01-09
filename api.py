@@ -24,7 +24,7 @@ def get_pokemon(id):
 def find_pokemon(name):
     url = None
     searches = 0
-    while searches < 7:
+    while searches < 8:
         response = None
         if (url):
             response = requests.get(url)

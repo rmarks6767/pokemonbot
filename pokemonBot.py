@@ -1,7 +1,7 @@
 
 import discord, random
 from api import get_pokemon
-from processors import party_add
+from processors import party_add, party_view
 class PokemonBot(discord.Client):
 
     async def on_ready(self):
@@ -26,11 +26,11 @@ class PokemonBot(discord.Client):
                 print(messageList)
                 #takes in userId and takes in pokemon name if it is party add
                 if messageList[2] == "view" and  len(messageList) == 3:
-                    print("Viewing")
-                    await message.channel.send("Viewing party")
+                    response = f'<@!{message.author.id}> ' + party_view(message.author.id)
+                    await message.channel.send(response)
                 elif messageList[2] == "add" and len(messageList)==4:
-                    print("adding ", messageList[3])
-                    await message.channel.send("Adding "+ str(messageList[3])+ " to the party")
+                    response = party_add(message.author.id, messageList[3])
+                    await message.channel.send(response)
             elif messageCommand == "duel" and len(messageList)==3:
                 await message.channel.send("You are now challenging "+ str(messageList[2])+" to a battle")
             elif messageCommand== "fight" and len(messageList)==4:
