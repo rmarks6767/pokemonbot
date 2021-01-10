@@ -87,7 +87,7 @@ def find_pokemon(name):
     response = requests.get(base_URL + name)
     data = response.json()
 
-    level = 40
+    level = 1
 
     if data != None:
         pokemon={

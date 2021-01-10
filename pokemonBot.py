@@ -44,8 +44,8 @@ class PokemonBot(discord.Client):
             elif messageCommand== "execute-move" and len(messageList)==4:
                 userId=str(message.author.id)
                 opponentId=str(messageList[2]).replace('<@!','').replace('>','')
-                executeMove(messageList[3],opponentId,userId)
-                await message.channel.send("You are fighting " + str(messageList[2])+ " and used "+ str(messageList[3]))
+                response=executeMove(messageList[3],opponentId,userId)
+                await message.channel.send(response)
             elif messageCommand == "list" and len(messageList)==3:
                 if messageList[2] == "moves":
                     await message.channel.send("Your moveset")
