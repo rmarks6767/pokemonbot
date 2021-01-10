@@ -21,7 +21,7 @@ def party_add(userId, pokemon):
   pokemon_id = find_pokemon(pokemon.lower())
   moves = get_pokemon(pokemon_id)
 
-  if (pokemon_id != None):
+  if pokemon_id != None and str(pokemon_id) <= '151':
     parties = read_file('parties.txt')
 
     parties.append(f'{userId}:{pokemon}:{pokemon_id}:{str(moves)}\n')
@@ -30,7 +30,7 @@ def party_add(userId, pokemon):
 
     return f'Adding {pokemon} to your party! Your move set will be {moves}'
   else:
-    return 'Could not find that pokemon, only gen 1 is allowed'
+    return 'Could not find that pokemon, also note that only gen 1 is allowed'
 
 # @PokemonBot party view
 def party_view(userId): 

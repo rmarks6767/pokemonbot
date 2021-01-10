@@ -1,8 +1,6 @@
 import  requests, random
 
 base_URL="https://pokeapi.co/api/v2/pokemon/"
-pokemon={ 1:"bulbasaur", 4:"charmander", 7:"squirtle" }
-
 
 def get_pokemon(id):
     URL=base_URL+str(id)
@@ -21,24 +19,11 @@ def get_pokemon(id):
     print(chosenMoves)
     return chosenMoves
 
-def find_pokemon(name):
-    url = None
-    searches = 0
-    while searches < 8:
-        response = None
-        if (url):
-            response = requests.get(url)
-        else:
-            response = requests.get(base_URL)
+def find_pokemon(name):  
+    response = requests.get(base_URL + name)
+    data = response.json()
 
-        data = response.json()
-
-        for pokemon in data['results']:
-            if pokemon['name'] == name: 
-                return pokemon['url'].replace(base_URL, '').replace('/', '')
-
-        url = data['next']
-        searches += 1
-        
-    return None
-
+    if data != None:
+        return data['id']
+    else:
+        return None
