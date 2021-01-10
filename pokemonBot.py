@@ -1,6 +1,6 @@
 
 import discord, random
-from processors import party_add, party_view, party_abandon, party_replace
+from processors import party_add, party_view, party_abandon, party_replace, help_move
 from fight import duel
 from fight import executeMove
 
@@ -17,9 +17,13 @@ class PokemonBot(discord.Client):
             messageList=message.content.split(" ")
             messageCommand=messageList[1]
 
-            if messageCommand == "help" and len(messageList)==2:
-                await message.channel.send("Commands: \n\tparty [view | abandon] --- View or abandon your current party \n\tparty [add | replace ] [pokemon] --- Add or replace your current party with a new pokemon \n\tduel [@person] [level = 5] --- challenge a person to a duel at a given level (if none is provided will be 5) \n\texecute-move [@target] [move] --- Execute a move in an active duel on a given player \n\tlist [moves | parties] --- List your current party move set or available duelable parties\n")
-            elif messageCommand == "party" and 3 <= len(messageList) <= 4:
+            if messageCommand == "help":
+                if len(messageList)==2:
+                    await message.channel.send("Commands: \n\tparty [view | abandon] --- View or abandon your current party \n\tparty [add | replace ] [pokemon] --- Add or replace your current party with a new pokemon \n\tduel [@person] [level = 5] --- challenge a person to a duel at a given level (if none is provided will be 5) \n\texecute-move [@target] [move] --- Execute a move in an active duel on a given player \n\tlist [moves | parties] --- List your current party move set or available duelable parties\n")
+                if len(messageList)==3:
+                    response = help_move(message.author.id, messageList[2])
+                    await message.channel.send(response)
+            elif messageCommand == "party":
                 if messageList[2] == "view" and  len(messageList) == 3:
                     response = f'<@!{message.author.id}> ' + party_view(message.author.id)
                     await message.channel.send(response)
@@ -32,7 +36,7 @@ class PokemonBot(discord.Client):
                 elif messageList[2] == "replace" and len(messageList) == 4:
                     response = party_replace(message.author.id, messageList[3])
                     await message.channel.send(response)
-            elif messageCommand == "duel" and 3 <= len(messageList) <= 4:
+            elif messageCommand == "duel":
                 userId=str(message.author.id)
                 opponentId=str(messageList[2]).replace('<@!','').replace('>','')
                 level = 5

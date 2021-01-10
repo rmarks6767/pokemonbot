@@ -1,0 +1,8 @@
+userId[:]speed[:]effect[:]opponentId
+
+
+{
+  action: "hp"
+  target: "self"
+  change: 34
+}

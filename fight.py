@@ -2,8 +2,34 @@ from processors import party_parser
 from file_operations import read_file, save_file
 import random, ast
 
-#userId:{pokemon:health}|opponentId:{pokemon:health}
-#475134908206153728:squirtle:7:['dig', 'facade', 'yawn', 'brine']:
+def get_temp(userId, opponentId):
+    temp = read_file('temp.txt')
+
+    for line in temp:
+        split_line = line.split('[:]')
+
+        if (str(userId) == split_line[0] and str(opponentId) == split_line[3]
+        ) or (str(userId) == split_line[3] and str(opponentId) == split_line[0]):
+            return temp_parser(line)
+    
+    return None
+
+def save_temp(userId, speed, effect, opponentId):
+    temp = read_file('temp.txt')
+
+    temp.append(f'{userId}[:]{speed}[:]{effect}[:]{opponentId}') 
+
+    save_file()       
+
+def temp_parser(temp):
+    split_temp = temp.split('[:]')
+
+    return {
+        'userId': split_temp[0],
+        'speed': split_temp[1],
+        'userPokemon': ast.literal_eval(split_temp[2]),
+        'level': split_temp[3],
+    }    
 
 def duel_parser(d):
     split_duel = d.split('[:]')

@@ -1,5 +1,5 @@
 from file_operations import save_file, read_file
-from api import find_pokemon
+from api import find_pokemon, find_move_flavor_text
 import ast
 
 def find_move_names(moves):
@@ -89,4 +89,12 @@ def fight(userId, fightingId, move):
     if party['userId'] == str(fightingId):
       fightingParty = party
 
+def help_move(userId, moveText):
+  parties = read_file('parties.txt')
+
+  move = find_move_flavor_text(moveText)
   
+  if not move:
+    return 'That is not a valid move'
+  else:
+    return move

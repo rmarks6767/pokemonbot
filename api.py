@@ -1,6 +1,6 @@
 import  requests, random, math
 
-base_URL="https://pokeapi.co/api/v2/pokemon/"
+base_URL="https://pokeapi.co/api/v2/"
 
 def calculate_stat(base_stat, level):
     return math.floor((((base_stat + random.randint(16,31)) * 2) * level) / 100) + 5
@@ -84,7 +84,7 @@ def build_moves(moves):
     return chosenMoves
 
 def find_pokemon(name):  
-    response = requests.get(base_URL + name)
+    response = requests.get(f'{base_URL}/pokemon/{name}')
     data = response.json()
 
     level = 40
@@ -107,5 +107,15 @@ def find_pokemon(name):
         }
 
         return pokemon
+    else:
+        return None
+
+def find_move_flavor_text(moveText):
+    response = requests.get(f'{base_URL}move/{moveText}')
+
+    if response != None:
+        data = response.json() 
+
+        return f'**{data["name"]}**\n{find_flavor_text(data["flavor_text_entries"])}'
     else:
         return None
