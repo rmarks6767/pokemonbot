@@ -1,10 +1,20 @@
 from processors import party_parser
 from file_operations import read_file
-import random
+import random, ast
 
 #userId:{pokemon:health}|opponentId:{pokemon:health}
 #475134908206153728:squirtle:7:['dig', 'facade', 'yawn', 'brine']:
 
+def duel_parser(duel):
+    split_duel = duel.split('[:]')
+
+    return {
+        'userId': split_duel[0],
+        'userPokemon': ast.literal_eval(split_duel[1]),
+        'opponentId': split_duel[2],
+        'opponentPokemon': ast.literal_eval(split_duel[3]),
+        'level': split_duel[4],
+    }
 
 def duel(userId, opponentId):
     if userId == opponentId:
