@@ -1,34 +1,38 @@
 from file_operations import save_file, read_file
-from api import find_pokemon, get_pokemon
+from api import find_pokemon
 import ast
 
 def party_parser(party):
   new_party = {}
-  party_vals= party.split(':')
-
-  print(party_vals)
+  party_vals= party.split('[:]')
 
   new_party['userId'] = party_vals[0]
   new_party['pokemonName'] = party_vals[1]
-  new_party['pokemonId'] = party_vals[2]
-  new_party['moves'] = ast.literal_eval(party_vals[3])
+  new_party['pokemon'] = ast.literal_eval(party_vals[2])
 
   return new_party
 
+def find_move_names(moves):
+  names = []
+
+  for move in moves:
+    names.append(move['name'])
+
+  return names
+
 # Party commands
 # @PokemonBot party add [pokemon]
-def party_add(userId, pokemon):
-  pokemon_id = find_pokemon(pokemon.lower())
-  moves = get_pokemon(pokemon_id)
+def party_add(userId, pokemonName):
+  pokemon = find_pokemon(pokemonName.lower())
 
-  if pokemon_id != None and str(pokemon_id) <= '151':
+  if pokemon != None:
     parties = read_file('parties.txt')
 
-    parties.append(f'{userId}:{pokemon}:{pokemon_id}:{str(moves)}\n')
+    parties.append(f'{userId}[:]{pokemonName}[:]{pokemon}\n')
 
     save_file('parties.txt', parties)
 
-    return f'Adding {pokemon} to your party! Your move set will be {moves}'
+    return f'Adding {pokemonName} to your party! Your move set will be {find_move_names(pokemon["moves"])}'
   else:
     return 'Could not find that pokemon, also note that only gen 1 is allowed'
 
@@ -40,7 +44,7 @@ def party_view(userId):
     party = party_parser(p)
 
     if (party['userId'] == str(userId)):
-      return f'Your current party is {party["pokemonName"]} with the moveset {party["moves"]}'
+      return f'Your current party is {party["pokemonName"]} with the moveset {find_move_names(party["pokemon"]["moves"])}'
 
   return 'Your party is empty!'
 

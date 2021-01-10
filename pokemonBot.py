@@ -1,6 +1,5 @@
 
 import discord, random
-from api import get_pokemon
 from processors import party_add, party_view
 from fight import duel
 class PokemonBot(discord.Client):
