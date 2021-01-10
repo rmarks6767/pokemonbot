@@ -2,8 +2,10 @@
 import discord, random
 from processors import party_add, party_view, party_abandon, party_replace
 from fight import duel
-class PokemonBot(discord.Client):
+from fight import executeMove
 
+
+class PokemonBot(discord.Client):
     async def on_ready(self):
         print(f'(self.user) has connected to Discord!')
     async def on_message(self,message):
@@ -39,7 +41,10 @@ class PokemonBot(discord.Client):
 
                 response=duel(userId,opponentId, level)
                 await message.channel.send(response)
-            elif messageCommand== "fight" and len(messageList)==4:
+            elif messageCommand== "execute-move" and len(messageList)==4:
+                userId=str(message.author.id)
+                opponentId=str(messageList[2]).replace('<@!','').replace('>','')
+                executeMove(messageList[3],opponentId,userId)
                 await message.channel.send("You are fighting " + str(messageList[2])+ " and used "+ str(messageList[3]))
             elif messageCommand == "list" and len(messageList)==3:
                 if messageList[2] == "moves":

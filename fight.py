@@ -1,12 +1,12 @@
 from processors import party_parser
-from file_operations import read_file
+from file_operations import read_file, save_file
 import random, ast
 
 #userId:{pokemon:health}|opponentId:{pokemon:health}
 #475134908206153728:squirtle:7:['dig', 'facade', 'yawn', 'brine']:
 
-def duel_parser(duel):
-    split_duel = duel.split('[:]')
+def duel_parser(d):
+    split_duel = d.split('[:]')
 
     return {
         'userId': split_duel[0],
@@ -34,11 +34,14 @@ def duel(userId, opponentId, level):
     elif opponentParty is None:
         return f"<@!{opponentId}>, you do not have a party"
 
-    duels= read_file(duels.txt)
-    for duel in duels:
-        split_duel = duel.split('[:]')
+    duels= read_file('duels.txt')
+    for d in duels:
+        split_duel = d.split('[:]')
         if (split_duel[0] == str(userId)) and split_duel[2] == str(opponentId):
             return "You already got a battle with this fella!"
+    duels.append(f'{userId}[:]{userParty["pokemon"]}[:]{opponentId}[:]{opponentParty["pokemon"]}[:]{level}')
+
+    save_file("duels.txt",duels)
 
     return "Duel!"
 
@@ -46,12 +49,17 @@ def duel(userId, opponentId, level):
 
 def executeMove(moveText,defenderId,userId):
     duels=read_file("duels.txt")
+    defender=None
+    attacker=None
+
     for d in duels:
-        duel=duel_parser(d)
-        if duel["userId"]==userId:
-            attacker=duel["pokemon"]
-        elif duel["userId"]==defenderId:
-            defender=duel["pokemon"]
+        selected_duel=duel_parser(d)
+        if selected_duel["userId"]==userId and selected_duel["opponentId"]== defenderId:
+            attacker=selected_duel["userPokemon"]
+            defender=selected_duel["opponentPokemon"]
+        elif selected_duel["userId"]==defenderId and selected_duel["opponentId"]== userId:
+            attacker=selected_duel["opponentPokemon"]
+            defender=selected_duel["userPokemon"]
     move=None
     moves=attacker["moves"]
     for m in moves:
@@ -96,9 +104,10 @@ def executeMove(moveText,defenderId,userId):
     finalModifier=modifier(moveType,attackerTypeList,(random.randint(85,100))/100,move["damage_class"]["relations"], defendingTypesList)
     damage=((((((2*attackerLevel)/5)+2)*rightHalf)/50)+2)*finalModifier
     print("Took", damage,"points of damage")
-    print(defender)
-    defender["stats"]["hp"]=defender["stats"]["hp"]-damage #Update
 
+    defender["stats"]["hp"]=defender["stats"]["hp"]-damage #Update
+    print(attacker)
+    print(defender)
 
 
 def rightHalfEquation(offensive,defensive,power):
