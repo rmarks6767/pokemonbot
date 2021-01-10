@@ -13,17 +13,13 @@ def save_file(file_name, file_content):
   
 def update_file(file_name, update_item):
   previous_content = read_file(file_name)
-  
   split_update = update_item.split('[:]')
-
   file = []
-
   for line in previous_content:
     split_line = line.split('[:]')
-    
-    if split_line[0] == split_update[0]:
+    if (split_line[0] == split_update[0] and split_line[2] == split_update[2]
+    ) or(split_line[0] == split_update[2] and split_line[2] == split_update[0]):
       file.append(update_item)
     else:
       file.append(line)
-
   save_file(file_name, file)
