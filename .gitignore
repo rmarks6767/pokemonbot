@@ -131,3 +131,4 @@ dmypy.json
 # Temp test file for saving data
 parties.txt
 duels.txt
+temp.txt

@@ -1,5 +1,6 @@
 from processors import party_parser
 from file_operations import read_file, save_file
+from api import calculate_stat, calculate_health
 import random, ast
 
 def get_temp(userId, opponentId):
@@ -19,7 +20,7 @@ def save_temp(userId, speed, effect, opponentId):
 
     temp.append(f'{userId}[:]{speed}[:]{effect}[:]{opponentId}') 
 
-    save_file()       
+    save_file('temp.txt', temp)       
 
 def temp_parser(temp):
     split_temp = temp.split('[:]')
@@ -65,6 +66,25 @@ def duel(userId, opponentId, level):
         split_duel = d.split('[:]')
         if (split_duel[0] == str(userId)) and split_duel[2] == str(opponentId):
             return "You already got a battle with this fella!"
+
+    userParty['pokemon']['stats'] = {
+        'hp': calculate_health(userParty['pokemon']['stats']['hp'], level),
+        'attack': calculate_stat(userParty['pokemon']['stats']['attack'], level),
+        'defense': calculate_stat(userParty['pokemon']['stats']['defense'], level),
+        'special-attack': calculate_stat(userParty['pokemon']['stats']['special-attack'], level),
+        'special-defense': calculate_stat(userParty['pokemon']['stats']['special-defense'], level),
+        'speed': calculate_stat(userParty['pokemon']['stats']['speed'], level),
+    }
+
+    opponentParty['pokemon']['stats'] = {
+        'hp': calculate_health(opponentParty['pokemon']['stats']['hp'], level),
+        'attack': calculate_stat(opponentParty['pokemon']['stats']['attack'], level),
+        'defense': calculate_stat(opponentParty['pokemon']['stats']['defense'], level),
+        'special-attack': calculate_stat(opponentParty['pokemon']['stats']['special-attack'], level),
+        'special-defense': calculate_stat(opponentParty['pokemon']['stats']['special-defense'], level),
+        'speed': calculate_stat(opponentParty['pokemon']['stats']['speed'], level),
+    }
+
     duels.append(f'{userId}[:]{userParty["pokemon"]}[:]{opponentId}[:]{opponentParty["pokemon"]}[:]{level}')
 
     save_file("duels.txt",duels)
@@ -78,6 +98,8 @@ def executeMove(moveText,defenderId,userId):
     defender=None
     attacker=None
 
+    effects=[]
+
     for d in duels:
         selected_duel=duel_parser(d)
         if selected_duel["userId"]==userId and selected_duel["opponentId"]== defenderId:
@@ -89,6 +111,7 @@ def executeMove(moveText,defenderId,userId):
     move=None
     moves=attacker["moves"]
     for m in moves:
+        print (m["name"])
         if moveText == m["name"]:
             move=m
     if move is None:
@@ -96,7 +119,12 @@ def executeMove(moveText,defenderId,userId):
     if move["pp"] == 0:
         return f"<@!{userId}> has no pp, zero"
 
-    accuracy=move["accuracy"]
+    move["pp"] = int(move["pp"]) - 1
+    accuracy = move["accuracy"]
+
+    if random.randint(0, 100) >= accuracy:
+        return "You missed your attack"
+
 
     power= move["power"]
     moveType=move["type"]
@@ -112,35 +140,51 @@ def executeMove(moveText,defenderId,userId):
 
     damageType=move["damage_class"]["type"]
     rightHalf=None
-    if damageType=="status":
 
-        statChange=move["stat_changes"]["change"]
-        statThatChanges=move["stat_changes"]["name"]
+    for element in move["stat_changes"]:
+        statChange = element["change"]
         if statChange > 0:
-            statusMove(attacker,statChange,statThatChanges)
+            effects.append({
+                "action":element["name"],
+                "target": "self",
+                "change": statChange
+            })
+            #statusMove(attacker,statChange,element["name"])
         elif statChange<0:
-            statusMove(defender,statChange,statThatChanges)
-        move["pp"]= int(move["pp"])-1 #Update
-        return "Did " + move["name"]+". "
-
-    elif damageType=="physical":
+            effects.append({
+                "action": element["name"],
+                "target": "opponent",
+                "change": statChange
+            })
+            # statusMove(attacker,statChange,element["name"])
+    if damageType=="status":
+        return "You did status"
+    if damageType=="physical":
         rightHalf=rightHalfEquation(attackingStat, defendingAttack,power)
     elif damageType=="special":
         rightHalf=rightHalfEquation(specialAttackingStat, defendingSpecialAttack,power)
     finalModifier=modifier(moveType,attackerTypeList,(random.randint(85,100))/100,move["damage_class"]["relations"], defendingTypesList)
+    print(attackerLevel,rightHalf,finalModifier)
     damage=((((((2*attackerLevel)/5)+2)*rightHalf)/50)+2)*finalModifier
     print("Took", damage,"points of damage")
+    print(move["pp"])
+    effects.append({
+        "action": "hp",
+        "target":"opponent",
+        "change":damage
+    })
 
-    defender["stats"]["hp"]=defender["stats"]["hp"]-damage #Update
-    print(attacker)
-    print(defender)
 
+
+    #defender["stats"]["hp"]=defender["stats"]["hp"]-damage #Update
+    return defender["stats"]["hp"]
 
 def rightHalfEquation(offensive,defensive,power):
+    print(power,offensive,defensive)
     rightHalf= power * (offensive/defensive)
     return rightHalf
 def statusMove(effectedPokemon,move,statThatChanges):
-    effectedPokemon[statThatChanges]=move + int(effectedPokemon[statThatChanges]) #Update
+    effectedPokemon["stats"][statThatChanges]=move + int(effectedPokemon["stats"][statThatChanges]) #Update
 
 def modifier(moveType,attackerTypeList,randMult,moveRelationsTo,defendingTypeList):
     if moveType in attackerTypeList:
